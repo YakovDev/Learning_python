@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from masks import get_mask_card_number, get_mask_account
 
@@ -25,4 +26,22 @@ def mask_account_card(card: str) -> str:
     return card.replace(numbers, masked)
 
 
-print(mask_account_card("Visa Platinum 7000792289606362"))
+def get_date(date: str) -> str:
+    """
+    Функция принимает данные даты в строке iso формата
+    извлекает дату месяц год и возвращает
+    дату месяц год из строки которую передали
+
+
+    Сделал через регулярные выражения потом увидел что надо через datatime...
+    Ну ладно попрактиковался хотя-бы оставлю код чтобы посмотрели интересно прочитают или нет)
+    #search_year = re.search(r'\d{4}(?=-)', date)
+    #search_month = re.search(r"(?<=-)\d{2}(?=-)", date)
+    #search_day = re.search(r"(?<=-)\d{2}(?=\w)", date)
+    #return f"{str(search_day.group())}.{str(search_month.group())}.{str(search_year.group())}"
+    """
+    dt = datetime.fromisoformat(date)
+    return dt.strftime("%d.%m.%Y")
+
+
+print(get_date("2024-03-11T02:26:18.671407"))
