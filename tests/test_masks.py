@@ -1,5 +1,6 @@
 import pytest
-from src.masks import get_mask_card_number, get_mask_account
+
+from src.masks import get_mask_account, get_mask_card_number
 
 
 @pytest.mark.parametrize(
@@ -18,9 +19,10 @@ def test_get_mask_card_number_error():
         get_mask_card_number("")
 
 
-# @pytest.mark.parametrize("input, expected ",
-#                          [
-#                              ()]
-#
-#
-# )
+# Тестирование правильности маскирования номера счета.
+# Проверка работы функции с различными форматами и длинами номеров счетов.
+# Проверка, что функция корректно обрабатывает входные данные, где номер счета меньше ожидаемой длины.
+def test_get_mask_account():
+    assert get_mask_account("44444") == "**4444"
+    with pytest.raises(ValueError):
+        get_mask_account("444")

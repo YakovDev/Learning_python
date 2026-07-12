@@ -14,9 +14,6 @@ def get_mask_card_number(user_input: str | int) -> str:
     return f"{first_ser} {second_ser[:2]}** **** {fourth_ser}"
 
 
-print(get_mask_card_number("7000792289606361"))
-
-
 def get_mask_account(numb: str) -> str:
     """
     Принимает номер карты и возвращает последние 4 цифры возможно
@@ -25,8 +22,3 @@ def get_mask_account(numb: str) -> str:
         return f"**{numb[-4:]}"
 
     raise ValueError("Ошибка ввода")
-
-
-print(get_mask_account("7000792289606361"))
-print(get_mask_account("7000792289606361"))
-print(get_mask_account("7000792289606361"))

@@ -12,7 +12,7 @@ def filter_by_state(list_of_dict: list[dict], state: str = "EXECUTED") -> list[d
     """
     result = []
     for item in list_of_dict:
-        a = item.get("state")
+        a = item.get("state", "")
         if a == state:
             result.append(item)
     return result
@@ -27,6 +27,6 @@ def sort_by_date(list_of_dict: list[dict[str, Any]], procedure: bool = True) -> 
 
     return sorted(
         list_of_dict,
-        key=lambda x: datetime.fromisoformat(x.get("date")) if x.get("date") else datetime.min,
+        key=lambda x: datetime.fromisoformat(x.get("date", "")) if x.get("date", "") else datetime.min,
         reverse=procedure,
     )
