@@ -10,8 +10,6 @@
 
 ## 📁 Структура проекта
 
-## 📁 Структура проекта
-
 ```
 .
 ├── .gitignore          # Исключаемые файлы и папки
@@ -198,8 +196,6 @@ filtered = filter_by_state(data, "EXECUTED")
 sorted_dates = sort_by_date(filtered)
 print(sorted_dates)  # ['11.03.2024', '05.01.2024']
 ```
-
-
 
 ---
 
