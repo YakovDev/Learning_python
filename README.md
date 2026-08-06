@@ -5,22 +5,23 @@
 - преобразования даты в читаемый формат;
 - фильтрации и сортировки списка операций по статусу и дате;
 - генерации номеров карт и итераторов по транзакциям.
+- автоматического логирования выполнения функций
 ---
 ## 📁 Структура проекта
 ```
-.
-├── .gitignore          # Исключаемые файлы и папки
+project_root/
+├── .gitignore          # Исключения для Git (виртуальное окружение, кеши, отчёты)
 ├── .flake8             # Конфигурация линтера Flake8
 ├── README.md           # Описание проекта
 ├── src/                # Исходный код
-│   ├── __init__.py
-│   ├── masks.py        # Функции маскировки
+│   ├── __init__.py     # Делает папку пакетом
+│   ├── masks.py        # Функции маскировки номеров карт/счетов
 │   ├── processing.py   # Фильтрация и сортировка операций
 │   ├── generator.py    # Генераторы и итераторы по транзакциям
 │   └── widget.py       # Основной виджет (маскировка + дата)
 └── tests/              # Тесты (pytest)
     ├── __init__.py
-    ├── conftest.py        # Фикстуры для тестов
+    ├── conftest.py        # Общие фикстуры для тестов
     ├── test_masks.py      # Тесты для masks.py
     ├── test_processing.py # Тесты для processing.py
     ├── test_generator.py  # Тесты для generator.py
@@ -136,6 +137,27 @@
   list(card_number_generator(3, 1))
   # [] (пустой список, start > end)
   ```
+### `decorators.py`
+
+Содержит декоратор `log` для автоматического логирования вызовов функций.
+
+- `log(filename: str = "") -> Callable`  
+  Декоратор, который логирует начало, результат/ошибку и завершение выполнения функции.  
+  Если передан `filename` – логи записываются в файл (режим `"a+"`), иначе – выводятся в консоль.
+
+  Пример:
+  ```python
+  from src.decorators import log
+
+  @log()  # вывод в консоль
+  def add(a, b):
+      return a + b
+
+  @log(filename="app.log")  # запись в файл
+  def divide(x, y):
+      if y == 0:
+          raise ValueError("Деление на ноль")
+      return x / y
 ---
 ## 🧪 Тестирование
 Для обеспечения корректности работы всех функций в проекте написаны **модульные тесты** с использованием фреймворка `pytest`. Тесты покрывают:
@@ -168,11 +190,12 @@ pytest --cov=src --cov-report=html
 | File                 | statements | missing | excluded | coverage |
 |----------------------|------------|---------|----------|----------|
 | src\__init__.py      | 0          | 0       | 0        | 100%     |
+| src\decorators.py    | 23         | 0       | 0        | 100%     |
+| src\generator.py     | 16         | 0       | 0        | 100%     |
 | src\masks.py         | 12         | 0       | 0        | 100%     |
 | src\processing.py    | 11         | 0       | 0        | 100%     |
-| src\generator.py     | 18         | 0       | 0        | 100%     |
 | src\widget.py        | 18         | 0       | 0        | 100%     |
-| **Total**            | 59         | 0       | 0        | 100%     |
+| **Total**            | **80**     | **0**   | **0**    | **100%** |
 ```
 ---
 ## Пример использования
@@ -180,6 +203,7 @@ pytest --cov=src --cov-report=html
 from src.widget import mask_account_card, get_date
 from src.processing import filter_by_state, sort_by_date
 from src.generator import filter_by_currency, transaction_descriptions, card_number_generator
+from src.decorators import log
 # Маскировка
 print(mask_account_card("Maestro 7000792289606361"))
 # Maestro 7000 79** **** 6361
@@ -216,13 +240,47 @@ for card in card_number_generator(1, 5):
 # 0000 0000 0000 0003
 # 0000 0000 0000 0004
 # 0000 0000 0000 0005
+# Логирование с помощью декоратора
+@log()  # вывод в консоль
+def multiply(a, b):
+    return a * b
+
+@log(filename="operations.log")  # запись в файл
+def safe_divide(x, y):
+    if y == 0:
+        raise ValueError("Деление на ноль запрещено")
+    return x / y
+
+# Вызов функции с логированием в консоль
+print(multiply(4, 5))
+# В консоли появятся:
+# Начало выполнения функции multiply
+# Успешно! Результат: 20
+# Позиционные аргументы: (4, 5)
+# Именованные аргументы: {}
+# Конец выполнения функции multiply
+# 20
+
+# Вызов функции с логированием в файл
+try:
+    safe_divide(10, 0)
+except ValueError:
+    pass
+# В файле operations.log будет записано:
+# Начало выполнения функции safe_divide
+# Ошибка ValueError
+# Позиционные аргументы: (10, 0)
+# Именованные аргументы: {}
+# Конец выполнения функции safe_divide с ошибкой
 ```
 ---
 ## 🛠 Технологии
 - Python 3.8+
 - Стандартная библиотека:
-  - `re` — регулярные выражения
-  - `datetime` — работа с датами
+  - `re` — регулярные выражения для маскировки
+  - `datetime` — работа с датами и временем
+  - `functools` — для сохранения метаданных через `@wraps`
+  - `typing` — аннотации типов (`Callable`)
 - Для тестирования:
-  - `pytest` — фреймворк для тестирования
+  - `pytest` — фреймворк для модульных тестов
   - `pytest-cov` — плагин для измерения покрытия кода
