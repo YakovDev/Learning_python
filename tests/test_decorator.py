@@ -8,9 +8,9 @@ def test_log(capsys):
     my_lambda(2, 3)
     captured = capsys.readouterr()
     assert (
-        captured.out == "Начало выполнения функции <lambda>\n <lambda>\nУспешно!\nРезультат: 5"
-        "\nПозиционные аргументы: (2, 3)"
-        "\nИменованные аргументы: {}\n\n <lambda>\nКонец выполнения функции <lambda>\n <lambda>\n"
+        captured.out == "Начало выполнения функции <lambda>\n <lambda>\nУспешно! Результат: 5\n"
+        "Позиционные аргументы: (2, 3)\nИменованные аргументы: {}\n <lambda>\n"
+        "Конец выполнения функции <lambda>\n <lambda>\n"
     )
 
 
