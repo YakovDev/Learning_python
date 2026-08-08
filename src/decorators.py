@@ -3,6 +3,12 @@ from typing import Callable
 
 
 def log(filename: str = "") -> Callable:
+    """
+    Декоратор log для автоматического логирования вызовов функций.
+    Декоратор, который логирует начало, результат/ошибку и завершение выполнения функции.
+    Если передан `filename` – логи записываются в файл (режим `"a+"`), иначе – выводятся в консоль.
+    """
+
     def inner(func: Callable):
         @wraps(func)
         def wrapper(*args, **kwargs):
