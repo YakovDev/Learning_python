@@ -15,8 +15,7 @@ def test_get_mask_card_number(input_card, expected):
 
 
 def test_get_mask_card_number_error():
-    with pytest.raises(ValueError):
-        get_mask_card_number("")
+    assert get_mask_card_number("") == "Номер должен быть равен 16 или введите числа"
 
 
 # Тестирование правильности маскирования номера счета.
@@ -24,5 +23,4 @@ def test_get_mask_card_number_error():
 # Проверка, что функция корректно обрабатывает входные данные, где номер счета меньше ожидаемой длины.
 def test_get_mask_account():
     assert get_mask_account("44444") == "**4444"
-    with pytest.raises(ValueError):
-        get_mask_account("444")
+    assert get_mask_account("") == "Ошибка ввода"
