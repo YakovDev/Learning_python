@@ -13,6 +13,7 @@ def _filter_by_state():
 
 @pytest.fixture
 def transactions():
+    """Фикстура с набором транзакций"""
     return [
         {
             "id": 1,
@@ -53,3 +54,15 @@ def transactions():
             },
         },
     ]
+
+
+@pytest.fixture
+def rub_transaction():
+    """Фикстура для транзакции в рублях"""
+    return {"amount": 100.50, "currency": "RUB"}
+
+
+@pytest.fixture
+def usd_transaction():
+    """Фикстура для транзакции в долларах"""
+    return {"amount": 50.00, "currency": "USD"}
