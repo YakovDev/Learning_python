@@ -1,3 +1,6 @@
+import csv
+
+import pandas as pd
 import pytest
 
 
@@ -66,3 +69,53 @@ def rub_transaction():
 def usd_transaction():
     """Фикстура для транзакции в долларах"""
     return {"amount": 50.00, "currency": "USD"}
+
+
+@pytest.fixture
+def csv_file(tmp_path):
+    """Создаёт временный CSV-файл с тестовыми данными."""
+    data = [
+        {"id": "1", "amount": "100.50", "currency": "USD"},
+        {"id": "2", "amount": "200.00", "currency": "EUR"},
+        {"id": "3", "amount": "50.25", "currency": "USD"},
+    ]
+    file_path = tmp_path / "test.csv"
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer.writeheader()
+        writer.writerows(data)
+    return file_path
+
+
+@pytest.fixture
+def excel_file(tmp_path):
+    """Создаёт временный Excel-файл с тестовыми данными."""
+    data = pd.DataFrame(
+        [
+            {"id": 1, "amount": 100.50, "currency": "USD"},
+            {"id": 2, "amount": 200.00, "currency": "EUR"},
+            {"id": 3, "amount": 50.25, "currency": "USD"},
+        ]
+    )
+    file_path = tmp_path / "test.xlsx"
+    data.to_excel(file_path, index=False)
+    return file_path
+
+
+@pytest.fixture
+def csv_empty_file(tmp_path):
+    """Создаёт CSV-файл только с заголовками, без строк."""
+    file_path = tmp_path / "empty.csv"
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["id", "amount", "currency"])
+        writer.writeheader()
+    return file_path
+
+
+@pytest.fixture
+def excel_empty_file(tmp_path):
+    """Создаёт Excel-файл только с заголовками, без строк."""
+    data = pd.DataFrame(columns=["id", "amount", "currency"])
+    file_path = tmp_path / "empty.xlsx"
+    data.to_excel(file_path, index=False)
+    return file_path
