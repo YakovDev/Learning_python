@@ -1,9 +1,13 @@
-from unittest.mock import patch, Mock
+from typing import Any
+import sys
+from typing import Any
+from unittest.mock import Mock, patch
 
+import pytest
 import requests
 
 
-def test_external_api_no_api_call(rub_transaction):
+def test_external_api_no_api_call(rub_transaction: dict[str, Any]) -> None:
     """Проверка конвертации RUB (без запроса к API)."""
     with patch("src.external_api.API_KEY", "test_key"):
         from src.external_api import external_api
@@ -12,7 +16,7 @@ def test_external_api_no_api_call(rub_transaction):
         assert result == 100.50
 
 
-def test_external_api_http_error(usd_transaction):
+def test_external_api_http_error(usd_transaction: dict[str, Any]) -> None:
     """Ошибка HTTP 404 → возврат 0.0."""
     with patch("src.external_api.API_KEY", "test_key"):
         from src.external_api import external_api
@@ -27,7 +31,7 @@ def test_external_api_http_error(usd_transaction):
             assert result == 0.0
 
 
-def test_external_api_missing_rate(usd_transaction):
+def test_external_api_missing_rate(usd_transaction: dict[str, Any]) -> None:
     """Ответ API без поля rate → возврат 0.0."""
     with patch("src.external_api.API_KEY", "test_key"):
         from src.external_api import external_api
@@ -42,7 +46,7 @@ def test_external_api_missing_rate(usd_transaction):
             assert result == 0.0
 
 
-def test_external_api_invalid_data():
+def test_external_api_invalid_data() -> None:
     """Некорректные данные транзакции → возврат 0.0."""
     with patch("src.external_api.API_KEY", "test_key"):
         from src.external_api import external_api
@@ -52,7 +56,7 @@ def test_external_api_invalid_data():
         assert external_api({"amount": 100}) == 0.0  # нет currency
 
 
-def test_external_api_success(usd_transaction):
+def test_external_api_success(usd_transaction: dict[str, Any]) -> None:
     """Успешная конвертация USD → RUB с проверкой вызова requests.get."""
     with patch("src.external_api.API_KEY", "test_key"):
         from src.external_api import external_api
@@ -68,7 +72,20 @@ def test_external_api_success(usd_transaction):
             mock_get.assert_called_once_with(
                 "https://api.apilayer.com/exchangerates_data/convert",
                 params={"to": "RUB", "from": "USD", "amount": 50.00},
-                headers={"apikey": "test_key"},
+                headers={"apikey": "Test_aip_key"},
                 timeout=10,
             )
             assert result == 4562.50
+
+
+def test_if_not_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Так как если просто удалить API_key не удается потому что os.getevn находит папку и
+    сразу возвращает переменную в строй нужно было через патч указать возвращаемое значение по
+    умолчанию None и уже после удалить ключ и импортировать модуль для проверки
+    """
+
+    with patch("src.external_api.os.getenv", return_value=None):
+        if "src.external_api" in sys.modules:
+            del sys.modules["src.external_api"]
+        with pytest.raises(ValueError):
+            import src.external_api

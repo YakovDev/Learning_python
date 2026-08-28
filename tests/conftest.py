@@ -1,11 +1,13 @@
 import csv
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pytest
 
 
-@pytest.fixture()
-def _filter_by_state():
+@pytest.fixture
+def _filter_by_state() -> list[dict[str, Any]]:
     return [
         {"id": 3, "state": "", "date": "2025-12-15T11:30:45.123Z"},
         {"id": 5, "state": "CANCELED", "date": "2025-04-15T11:30:45.123Z"},
@@ -15,7 +17,7 @@ def _filter_by_state():
 
 
 @pytest.fixture
-def transactions():
+def transactions() -> list[dict[str, Any]]:
     """Фикстура с набором транзакций"""
     return [
         {
@@ -60,19 +62,19 @@ def transactions():
 
 
 @pytest.fixture
-def rub_transaction():
+def rub_transaction() -> dict[str, Any]:
     """Фикстура для транзакции в рублях"""
     return {"amount": 100.50, "currency": "RUB"}
 
 
 @pytest.fixture
-def usd_transaction():
+def usd_transaction() -> dict[str, Any]:
     """Фикстура для транзакции в долларах"""
     return {"amount": 50.00, "currency": "USD"}
 
 
 @pytest.fixture
-def csv_file(tmp_path):
+def csv_file(tmp_path: Path) -> Path:
     """Создаёт временный CSV-файл с тестовыми данными."""
     data = [
         {"id": "1", "amount": "100.50", "currency": "USD"},
@@ -88,7 +90,7 @@ def csv_file(tmp_path):
 
 
 @pytest.fixture
-def excel_file(tmp_path):
+def excel_file(tmp_path: Path) -> Path:
     """Создаёт временный Excel-файл с тестовыми данными."""
     data = pd.DataFrame(
         [
@@ -103,7 +105,7 @@ def excel_file(tmp_path):
 
 
 @pytest.fixture
-def csv_empty_file(tmp_path):
+def csv_empty_file(tmp_path: Path) -> Path:
     """Создаёт CSV-файл только с заголовками, без строк."""
     file_path = tmp_path / "empty.csv"
     with open(file_path, "w", newline="", encoding="utf-8") as f:
@@ -113,7 +115,7 @@ def csv_empty_file(tmp_path):
 
 
 @pytest.fixture
-def excel_empty_file(tmp_path):
+def excel_empty_file(tmp_path: Path) -> Path:
     """Создаёт Excel-файл только с заголовками, без строк."""
     data = pd.DataFrame(columns=["id", "amount", "currency"])
     file_path = tmp_path / "empty.xlsx"
