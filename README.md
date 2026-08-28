@@ -1,68 +1,126 @@
 # Виджет банковских операций
-Виджет для отображения информации о банковских операциях клиента.  
-Проект содержит набор утилит для:
-- маскировки номеров банковских карт и счетов;
-- преобразования даты в читаемый формат;
-- фильтрации и сортировки списка операций по статусу и дате;
-- генерации номеров карт и итераторов по транзакциям.
-- автоматического логирования выполнения функций
+
+Виджет для отображения и обработки информации о банковских операциях клиента.  
+Проект включает как библиотеку утилит, так и готовое интерактивное консольное приложение.
+
+### 🔧 Библиотека утилит предоставляет:
+
+- маскировку номеров банковских карт и счетов;
+- преобразование даты в читаемый формат;
+- фильтрацию и сортировку списка операций по статусу и дате;
+- генерацию номеров карт и итераторов по транзакциям;
+- поиск по описанию и подсчёт категорий операций;
+- загрузку транзакций из **JSON**, **CSV** и **Excel**;
+- конвертацию валют в рубли через внешний API;
+- автоматическое логирование выполнения функций в консоль или файл;
+- модульные тесты с покрытием 100%.
+
+### 🖥️ Консольное приложение (`main.py`) позволяет:
+
+- выбрать источник данных (JSON, CSV, Excel);
+- отфильтровать транзакции по статусу (`EXECUTED`, `CANCELED`, `PENDING`);
+- отсортировать по дате (возрастание/убывание);
+- отобрать только рублёвые операции;
+- выполнить поиск по ключевому слову в описании;
+- вывести итоговый список с маскировкой счетов и дат, а также показать топ‑5 категорий операций.
+
 ---
+
 ## 📁 Структура проекта
 ```
 project_root/
+├──  main.py            # Главный исполняемый модуль
 ├── .gitignore          # Исключения для Git (виртуальное окружение, кеши, отчёты)
 ├── .flake8             # Конфигурация линтера Flake8
 ├── README.md           # Описание проекта
+├── logs/               # Директория с данными
+│   ├── masks.log # Логи masks.py
+│   └── utils.logs # Логи utils.py
 ├── data/               # Директория с данными
-│   └── operations.json # Пример файла с транзакциями
+│   ├── operations.json # Пример файла с транзакциями в формате json
+│   ├── transactions.csv # Пример файла с транзакциями в формате csv
+│   └── transactions_excel.xlsx # Пример файла с транзакциями в формате xlsx
 ├── src/                # Исходный код
 │   ├── __init__.py     # Делает папку пакетом
 │   ├── masks.py        # Функции маскировки номеров карт/счетов
 │   ├── processing.py   # Фильтрация и сортировка операций
 │   ├── generator.py    # Генераторы и итераторы по транзакциям
+│   ├── search.py       # Поиск по описанию и подсчёт категорий 
+│   ├── utils.py        # Загрузка транзакций из JSON
+│   ├── decorators.py   # Декоратор логирования
 │   ├── widget.py       # Основной виджет (маскировка + дата)
-│   └── external_api.py # Конвертация валют через внешний API
+│   ├── external_api.py # Конвертация валют через внешний API
+│   └── readers.py      # Чтение транзакций из CSV и Excel
 └── tests/              # Тесты (pytest)
-    ├── __init__.py
-    ├── conftest.py        # Общие фикстуры для тестов
-    ├── test_masks.py      # Тесты для masks.py
-    ├── test_processing.py # Тесты для processing.py
-    ├── test_generator.py  # Тесты для generator.py
-    ├── test_widget.py     # Тесты для widget.py
-    ├── test_utils.py      # Тесты для utils.py
-    └── test_external_api.py # Тесты для external_api.py
+    ├── init.py
+    ├── conftest.py # Общие фикстуры
+    ├── test_masks.py
+    ├── test_processing.py
+    ├── test_generator.py
+    ├── test_widget.py
+    ├── test_decorator.py
+    ├── test_utils.py
+    ├── test_external_api.py
+    ├── test_readers.py
+    └── test_search.py
 ```
 ---
 ## 🚀 Установка
+
+### Требования
+- **Python 3.8** или выше
+- Менеджер пакетов [Poetry](https://python-poetry.org/) (рекомендуется) или `pip`
+
+### Установка через Poetry (рекомендовано)
+
 1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/ваш-username/widget-bank-operations.git
+   git clone https://github.com/YakovDev/Learning_python
    cd widget-bank-operations
    ```
-2. Убедитесь, что установлен Python версии **3.8** или выше.
-3. (Опционально) Создайте виртуальное окружение:
+2. Установите зависимости и создайте виртуальное окружение:
    ```bash
-   python -m venv venv
-   source venv/bin/activate   # Linux/Mac
-   venv\Scripts\activate      # Windows
-4. Установите зависимости (если они описаны в `requirements.txt` или `pyproject.toml`).  
-   Для работы с внешним API и `.env` необходимы библиотеки:
-   ```bash
-   pip install requests python-dotenv
+   poetry install
+   pip init
    ```
-   Для тестирования:
+3. Активируйте окружение:
    ```bash
-   pip install pytest pytest-cov requests-mock
+   poetry shell # Poetry
+   venv\Scripts\Activate.ps1 # PowerShell
+   source venv/bin/activate # Linux / Mac
    ```
-
-5. Создайте файл `.env` в корне проекта (скопируйте из `.env.example`) и добавьте ваш API-ключ:
+4. Создайте файл `.env` в корне проекта (скопируйте из `.env.example`) и добавьте ваш API-ключ:
    ```
    EXCHANGE_RATES_API_KEY=ваш_ключ_api
    ```
 ---
 ## 📦 Описание модулей
+### `main.py`
+Главный исполняемый модуль, запускающий интерактивное консольное приложение.
+Он не импортируется как библиотека, а запускается напрямую:
+```bash
+   python main.py
+   ```
+Приложение последовательно:
+
+1. Предлагает выбрать источник данных (JSON, CSV или Excel).
+
+2. Фильтрует транзакции по статусу (EXECUTED, CANCELED, PENDING).
+
+3. Сортирует по дате (по возрастанию или убыванию).
+
+4. Опционально оставляет только рублёвые операции.
+
+5. Позволяет отфильтровать по ключевому слову в описании.
+
+6. Выводит итоговый список с маскировкой счетов и дат, а также топ‑5 категорий операций.
+
+
+---
+
+
 ### `masks.py`
-Содержит функции для маскировки номеров карт и счетов.
+Содержит функции для маскировки номеров банковских карт и счетов с логированием в `logs/masks.log`.
 - `get_mask_card_number(card_number: str | int) -> str`  
   Принимает номер карты (16 цифр) и возвращает его в замаскированном формате:  
   `XXXX XX** **** XXXX`  
@@ -71,7 +129,11 @@ project_root/
   Принимает номер счёта (любой длины) и возвращает только последние 4 цифры с двумя звёздочками:  
   `**XXXX`  
   *(например, `**4305`)*
+
+
 ---
+
+
 ### `widget.py`
 Содержит основной функционал виджета.
 - `mask_account_card(card_info: str | int) -> str`  
@@ -88,9 +150,25 @@ project_root/
   mask_account_card("Счет 73654108430135874305")
   # -> "Счет **4305"
   ```
-- `get_date(date_string: str) -> str`  
-  Принимает строку с датой в ISO-формате (`"2024-03-11T02:26:18.671407"`) и возвращает дату в формате `"ДД.ММ.ГГГГ"` (например, `"11.03.2024"`).
+  
+
 ---
+
+
+### `get_date(date_string: str) -> str`  
+  Принимает строку с датой в ISO-формате (`"2024-03-11T02:26:18.671407"`) и возвращает дату в формате `"ДД.ММ.ГГГГ"`
+  ```python
+   from src.widget import get_date
+
+    get_date("2024-03-11T02:26:18.671407")  # "11.03.2024"
+    get_date("некорректная дата")           # "Дата неизвестна"
+    
+  ```
+
+
+---
+
+  
 ### `processing.py`
 Содержит функции для обработки списка операций.
 - `filter_by_state(list_of_dict: list[dict], state: str = "EXECUTED") -> list[dict]`  
@@ -108,7 +186,11 @@ project_root/
   Сортирует список операций по дате (ключ `date`).  
   По умолчанию сортировка по убыванию (от новых к старым).  
   Возвращает **новый** отсортированный список.
+
+
 ---
+
+
 ### `generator.py`
 Содержит генераторы и итераторы для работы с транзакциями и номерами карт.
 - `filter_by_currency(transactions: list[dict], currency: str)`  
@@ -126,6 +208,11 @@ project_root/
   for t in usd_transactions:
       print(t["id"])  # 1, 3
   ```
+  
+
+---
+
+
 - `transaction_descriptions(transactions: list[dict])`  
   Генератор, который принимает список словарей с транзакциями и возвращает описание каждой операции по очереди.  
   Если описание отсутствует — возвращает пустую строку `""`, если поле `description` равно `None` — возвращает `None`.
@@ -142,6 +229,11 @@ project_root/
   # "Покупка в магазине"
   # None
   ```
+
+
+---
+
+
 - `card_number_generator(start: int, end: int)`  
   Генератор, который выдаёт номера банковских карт в формате `XXXX XXXX XXXX XXXX` в заданном диапазоне от `start` до `end` включительно.  
   Номера дополняются ведущими нулями до 16 цифр.  
@@ -154,6 +246,11 @@ project_root/
   list(card_number_generator(3, 1))
   # [] (пустой список, start > end)
   ```
+  
+
+---
+
+
 ### `decorators.py`
 
 Содержит декоратор `log` для автоматического логирования вызовов функций.
@@ -176,8 +273,48 @@ project_root/
           raise ValueError("Деление на ноль")
       return x / y
   ```
+  
 
 ---
+
+
+### `search.py`
+Содержит функции для поиска по описанию и подсчёта категорий транзакций.
+
+- `process_bank_search(data: list[dict], search_string: str) -> list[dict]`
+
+- Фильтрует список транзакций, оставляя только те, у которых поле description содержит искомую подстроку (регистронезависимо).
+Если search_string пустая, возвращает исходный список.
+
+  ```python
+  from src.search import process_bank_search
+
+  transactions = [
+  {"id": 1, "description": "Перевод в кафе"},
+  {"id": 2, "description": "Покупка в магазине"},
+  {"id": 3, "description": "Перевод другу"}
+  ]
+  process_bank_search(transactions, "перевод")  # вернёт транзакции с id 1 и 3
+  ```
+  `count_operations_by_category(data: list[dict], categories: list[str]) -> dict[str, int]`
+-   Подсчитывает, сколько транзакций из списка относятся к каждой из переданных категорий (поиск по описанию).
+  Возвращает словарь {категория: количество}.
+  
+    ```python
+    from src.search import count_operations_by_category
+
+    transactions = [
+    {"description": "Перевод в кафе"},
+    {"description": "Покупка в магазине"},
+    {"description": "Перевод другу"}
+    ]
+    count_operations_by_category(transactions, ["Перевод", "Покупка"])
+    # {"Перевод": 2, "Покупка": 1}
+    ```
+
+
+---
+
 
 ### `external_api.py`
 Содержит функцию для конвертации суммы транзакции в рубли с использованием внешнего API [Exchange Rates Data API](https://apilayer.com/exchangerates_data-api).
@@ -199,21 +336,75 @@ project_root/
   tx = {"amount": 100, "currency": "USD"}
   rub_amount = external_api(tx)   # например, 9125.00
   ```
+  
 
+---
+
+
+### `readers.py`
+Содержит функции для чтения транзакций из CSV и Excel-файлов с нормализацией структуры.
+
+- `reader_csv_file(file_path: Path | str) -> list[dict]`  
+Принимает путь к CSV-файлу, автоматически определяет разделитель, читает данные и преобразует плоские поля (amount, currency, currency_name, currency_code) во вложенный словарь operationAmount.
+В случае ошибки возвращает пустой список
+  ```python
+  from src.readers import reader_csv_file
+
+  transactions = reader_csv_file("data/transactions.csv")
+  # каждый элемент будет содержать ключ "operationAmount" с вложенными "amount" и "currency"
+  ```
+
+- `reader_xls_file(file_path: Path | str) -> list[dict]`  
+Аналогично для Excel-файлов (.xlsx) с использованием pandas.
+Возвращает список словарей с нормализованной структурой.
+
+  *Пример:*
+  ```python
+  from src.readers import reader_xls_file
+  transactions = reader_xls_file("data/transactions_excel.xlsx")
+  ```
+  
+---
+
+### `utils.py`
+Содержит функцию для загрузки транзакций из JSON-файла с логированием в logs/utils.log.
+- `load_transactions_json(file_path: str) -> list[dict]`
+  - Принимает путь к JSON-файлу, если файл существует и содержит список словарей, возвращает этот список.
+В случае ошибок (файл не найден, некорректный JSON, данные не список) возвращает пустой список.
+  *Пример:*
+  ```python
+    from src.utils import load_transactions_json
+
+    transactions = load_transactions_json("data/operations.json")
+    # если всё ок, получим список транзакций, иначе []
+    ```
+
+  ```
 
 ---
 ## 🧪 Тестирование
+
 Для обеспечения корректности работы всех функций в проекте написаны **модульные тесты** с использованием фреймворка `pytest`. Тесты покрывают:
+
 - все функции маскировки (`test_masks.py`);
 - фильтрацию и сортировку операций (`test_processing.py`);
 - основной виджет и преобразование даты (`test_widget.py`);
-- генераторы и итераторы по транзакциям и картам (`test_generator.py`).
+- генераторы и итераторы по транзакциям и картам (`test_generator.py`);
+- декоратор логирования (`test_decorator.py`);
+- загрузку из JSON (`test_utils.py`);
+- конвертацию валют через внешний API (`test_external_api.py`);
+- чтение из CSV и Excel (`test_readers.py`);
+- поиск по описанию и подсчёт категорий (`test_search.py`).
+
 Общее покрытие кода тестами составляет **100%** (проверено с помощью `pytest-cov`).
+
 ### Установка зависимостей для тестирования
+
 Установите `pytest` и `pytest-cov` (желательно в виртуальном окружении):
+
 ```bash
-pip install pytest pytest-cov
-```
+    poetry add pytest pytest-cov
+  ```
 ### Запуск тестов
 Выполните команду из корневой директории проекта:
 ```bash
@@ -234,13 +425,15 @@ pytest --cov=src --cov-report=html
 |----------------------|------------|---------|----------|----------|
 | src\__init__.py      | 0          | 0       | 0        | 100%     |
 | src\decorators.py    | 23         | 0       | 0        | 100%     |
-| src\external_api.py  | 31         | 1       | 0        | 97%      |
-| src\generator.py     | 16         | 0       | 0        | 100%     |
-| src\masks.py         | 12         | 0       | 0        | 100%     |
+| src\external_api.py  | 32         | 0       | 0        | 100%     |
+| src\generator.py     | 17         | 0       | 0        | 100%     |
+| src\masks.py         | 37         | 0       | 0        | 100%     |
 | src\processing.py    | 11         | 0       | 0        | 100%     |
-| src\utils.py         | 10         | 0       | 0        | 100%     |
-| src\widget.py        | 18         | 0       | 0        | 100%     |
-| **Total**            | **121**    | **1**   | **0**    | **99%**  |
+| src\readers.py       | 46         | 0       | 0        | 100%     |
+| src\search.py        | 22         | 0       | 0        | 100%     |
+| src\utils.py         | 30         | 0       | 0        | 100%     |
+| src\widget.py        | 19         | 0       | 0        | 100%     |
+| **Total**            | 237        | 0       | 0        | 100%     |
 ```
 ---
 ## Пример использования
@@ -249,8 +442,10 @@ from src.widget import mask_account_card, get_date
 from src.processing import filter_by_state, sort_by_date
 from src.generator import filter_by_currency, transaction_descriptions, card_number_generator
 from src.decorators import log
-from src.utils import load_transactions
+from src.utils import load_transactions_json
 from src.external_api import external_api
+from src.readers import reader_csv_file, reader_xls_file
+from src.search import process_bank_search, count_operations_by_category
 
 # 1. Маскировка
 print(mask_account_card("Maestro 7000792289606361"))
@@ -284,16 +479,27 @@ for desc in transaction_descriptions(transactions):
 for card in card_number_generator(1, 3):
     print(card)
 
-# 6. Загрузка из JSON
-loaded = load_transactions("data/operations.json")
+# 6. Загрузка из JSON (исправлено имя функции)
+loaded = load_transactions_json("data/operations.json")
 print(f"Загружено {len(loaded)} транзакций")
 
-# 7. Конвертация валюты
+# 7. Загрузка из CSV и Excel (новое)
+csv_data = reader_csv_file("data/transactions.csv")
+xlsx_data = reader_xls_file("data/transactions_excel.xlsx")
+print(f"CSV: {len(csv_data)}, Excel: {len(xlsx_data)}")
+
+# 8. Поиск и категории (новое)
+found = process_bank_search(loaded, "перевод")
+print(f"Найдено {len(found)} транзакций с 'перевод'")
+cats = count_operations_by_category(loaded, ["Перевод", "Покупка"])
+print(cats)
+
+# 9. Конвертация валюты
 tx = {"amount": 100, "currency": "USD"}
 rub = external_api(tx)
 print(f"100 USD = {rub} RUB")
 
-# 8. Логирование
+# 10. Логирование
 @log()
 def multiply(a, b):
     return a * b
@@ -317,3 +523,8 @@ print(multiply(2, 3))
   - `pytest` – фреймворк для модульных тестов.  
   - `pytest-cov` – плагин для измерения покрытия кода.  
   - `requests-mock` – для мокирования HTTP-запросов и окружения в тестах.
+- **Инструменты управления зависимостями:**  
+  - `poetry` – управление зависимостями и виртуальным окружением.
+- **Работа с данными:**  
+  - `pandas` – чтение Excel-файлов.  
+  - `openpyxl` – движок для работы с `.xlsx`.
