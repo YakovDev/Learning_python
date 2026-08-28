@@ -1,4 +1,6 @@
 import os
+from typing import Any
+
 import requests
 from dotenv import load_dotenv
 
@@ -7,16 +9,19 @@ API_KEY = os.getenv("EXCHANGE_RATES_API_KEY")
 
 if not API_KEY:
     raise ValueError("EXCHANGE_RATES_API_KEY not set")
+
+HEADERS: dict[str, str] = {"apikey": API_KEY}  # глобальный словарь с явным типом
 CONVERT_URL = "https://api.apilayer.com/exchangerates_data/convert"
 
 
-def external_api(transaction: dict) -> float:
+def external_api(transaction: dict[str, Any]) -> float:
     """
     Функция принимает словарь транзакции, извлекает из него сумму и код валюты.
     Если валюта уже RUB, возвращает сумму без изменений.
     Для USD, EUR и других валют выполняет HTTP-запрос к внешнему API,
     получает текущий курс к рублю и конвертирует сумму.
     """
+
     amount = transaction.get("amount")
     currency = transaction.get("currency")
 
@@ -32,9 +37,9 @@ def external_api(transaction: dict) -> float:
         return round(amount, 2)
 
     params = {"to": "RUB", "from": currency, "amount": amount}
-    headers = {"apikey": API_KEY}
+    # используем глобальный HEADERS
     try:
-        response = requests.get(CONVERT_URL, params=params, headers=headers, timeout=10)
+        response = requests.get(CONVERT_URL, params=params, headers=HEADERS, timeout=10)
         response.raise_for_status()
         data = response.json()
         rate = data.get("info", {}).get("rate")

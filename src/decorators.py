@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 
 def log(filename: str = "") -> Callable:
@@ -9,9 +9,9 @@ def log(filename: str = "") -> Callable:
     Если передан `filename` – логи записываются в файл (режим `"a+"`), иначе – выводятся в консоль.
     """
 
-    def inner(func: Callable):
+    def inner(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
 
             def message_log(message: str) -> None:
 

@@ -1,4 +1,7 @@
-def filter_by_currency(transactions: list[dict], currency: str):
+from typing import Any, Iterator
+
+
+def filter_by_currency(transactions: list[dict], currency: str) -> Iterator[dict]:
     """
 
     Функция принимает на вход список словарей, представляющих транзакции.
@@ -13,7 +16,7 @@ def filter_by_currency(transactions: list[dict], currency: str):
             yield transaction
 
 
-def transaction_descriptions(transactions: list[dict]):
+def transaction_descriptions(transactions: list[dict]) -> Iterator[str]:
     """Генератор, который принимает список словарей с транзакциями
     и возвращает описание каждой операции по очереди."""
 
@@ -21,7 +24,7 @@ def transaction_descriptions(transactions: list[dict]):
         yield transaction.get("description", "")
 
 
-def card_number_generator(start: int, end: int):
+def card_number_generator(start: int, end: int) -> Iterator[str]:
     """Выдает номера банковских карт в формате (XXXX XXXX XXXX XXXX), где (X) — цифра номера карты.
     Генератор может сгенерировать номера карт в заданном диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999."""
     if len(str(start)) > 16 or len(str(end)) > 16:
